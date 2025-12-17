@@ -1,0 +1,147 @@
+<div class="container mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Admin Dashboard</h1>
+    <button (click)="exportSummaryCsv()" type="button" class="inline-flex items-center gap-2 justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700 focus:ring-indigo-500">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>
+      Export Summary (CSV)
+    </button>
+  </div>
+
+  <!-- Reports Section -->
+  <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">Total Employees</h3>
+      <p class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">{{ employees().length }}</p>
+    </div>
+     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">Today's Issued</h3>
+      <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">{{ todaysIssued() }}</p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">Today's Redeemed</h3>
+      <p class="text-4xl font-bold text-purple-600 dark:text-purple-400">{{ todaysRedeemed() }}</p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">Lifetime Issued</h3>
+      <p class="text-4xl font-bold text-green-600 dark:text-green-400">{{ lifetimeIssued() }}</p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">Lifetime Redeemed</h3>
+      <p class="text-4xl font-bold text-red-600 dark:text-red-400">{{ lifetimeRedeemed() }}</p>
+    </div>
+  </div>
+
+  <!-- Redeem Coupon Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Manual / QR Redemption</h2>
+    <form [formGroup]="redeemCouponForm" (ngSubmit)="handleRedeemCoupon()" class="flex items-start space-x-2 md:space-x-4">
+      <div class="flex-grow">
+        <label for="redeem-code" class="sr-only">4-Digit Code</label>
+        <input formControlName="code" id="redeem-code" type="text" maxlength="4" placeholder="1234" class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center text-3xl font-mono tracking-widest">
+        @if (redeemCouponForm.get('code')?.invalid && redeemCouponForm.get('code')?.touched) {
+          <p class="text-red-500 text-xs mt-1">Please enter a valid 4-digit numeric code.</p>
+        }
+      </div>
+       <button (click)="openScannerModal()" type="button" class="px-4 py-2 h-full text-white bg-gray-600 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 font-semibold text-lg flex items-center space-x-2">
+         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6.364 1.636l-.707.707M20 12h-1M17.636 17.636l-.707-.707M12 20v-1M6.364 17.636l.707-.707M4 12h1M6.364 6.364l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <span class="hidden md:inline">Scan</span>
+      </button>
+      <button type="submit" [disabled]="redeemCouponForm.invalid" class="px-6 py-2 h-full text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-not-allowed font-semibold text-lg">
+        Redeem
+      </button>
+    </form>
+    @if (redeemStatusMessage(); as msg) {
+      @if(msg.type === 'success') {
+        <div class="mt-4 p-4 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center space-x-3">
+          <div class="relative flex-shrink-0 w-6 h-6 flex items-center justify-center">
+            <div class="absolute w-full h-full bg-green-400 rounded-full animate-ping opacity-75"></div>
+            <div class="relative w-4 h-4 bg-green-500 rounded-full"></div>
+          </div>
+          <p class="font-semibold text-green-800 dark:text-green-200">{{ msg.text }}</p>
+        </div>
+      }
+      @if(msg.type === 'error') {
+         <div class="mt-4 p-4 rounded-lg bg-red-50 dark:bg-red-900/50 border border-red-300 dark:border-red-700 flex items-center space-x-3">
+            <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="font-semibold text-red-800 dark:text-red-200">{{ msg.text }}</p>
+         </div>
+      }
+    }
+  </div>
+
+  <!-- AI Analytics Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+    <div class="flex items-center gap-4 mb-4">
+       <div class="flex-shrink-0 w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+          <svg class="w-7 h-7 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.528l.259 1.035L17.416 20.5l.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 16.5l1.036.259a3.375 3.375 0 002.455 2.456z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Analytics AI Assistant</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Ask a question about your canteen data to get instant insights.</p>
+        </div>
+    </div>
+    
+    <form [formGroup]="aiQueryForm" (ngSubmit)="handleGetAiInsights()" class="flex items-start space-x-2 md:space-x-4">
+      <div class="flex-grow">
+        <label for="ai-query" class="sr-only">Your Question</label>
+        <input formControlName="query" id="ai-query" type="text" placeholder="e.g., What was the busiest day for redemptions this week?" class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      </div>
+      <button type="submit" [disabled]="aiQueryForm.invalid || isAiLoading()" class="px-6 py-2 h-full text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed font-semibold flex items-center justify-center w-36">
+        @if(isAiLoading()) {
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Thinking...</span>
+        } @else {
+          <span>Get Insights</span>
+        }
+      </button>
+    </form>
+    
+    <div class="mt-4">
+        @if (isAiLoading()) {
+            <div class="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 animate-pulse">
+                <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-2.5"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-full mb-2.5"></div>
+                <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
+            </div>
+        }
+        @if (aiInsight(); as insight) {
+            <div class="p-4 rounded-lg bg-indigo-50 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-700">
+                <h3 class="font-semibold text-indigo-800 dark:text-indigo-200 mb-2">AI Insight:</h3>
+                <p class="text-sm text-indigo-700 dark:text-indigo-300 whitespace-pre-wrap">{{ insight }}</p>
+            </div>
+        }
+        @if (aiError(); as error) {
+            <div class="p-4 rounded-lg bg-red-50 dark:bg-red-900/50 border border-red-300 dark:border-red-700">
+                <h3 class="font-semibold text-red-800 dark:text-red-200 mb-2">Error:</h3>
+                <p class="text-sm text-red-700 dark:text-red-300">{{ error }}</p>
+            </div>
+        }
+    </div>
+    <p class="text-xs text-center text-gray-400 dark:text-gray-500 mt-4">AI-generated insights may occasionally be inaccurate. Please verify critical information.</p>
+  </div>
+
+
+  <!-- QR Scanner Modal -->
+  @if (isScannerModalOpen()) {
+    <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md relative">
+        <h3 class="text-xl font-bold mb-4">Scan QR Code</h3>
+        <div id="qr-reader" class="w-full rounded-lg overflow-hidden border-2 border-gray-300 dark:border-gray-600"></div>
+        <div class="flex justify-center mt-4">
+          <button type="button" (click)="closeScannerModal()" class="px-6 py-2 rounded text-white bg-red-600 hover:bg-red-700">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

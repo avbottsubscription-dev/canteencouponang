@@ -1,0 +1,81 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl dark:bg-gray-800 animate-fadeIn">
+    
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Hyva India (Pune)
+      </h1>
+      <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+        Canteen Management System
+      </p>
+      <div class="w-24 h-1 bg-indigo-500 mx-auto mt-4"></div>
+      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+        Please log in to continue
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form class="space-y-6" [formGroup]="loginForm" (ngSubmit)="handleLogin()">
+      
+      <!-- Employee ID Input -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 2.293a1 1 0 011.414 0l2 2a1 1 0 01-1.414 1.414L6 9.414V12a1 1 0 11-2 0V9.414l-1.293 1.293a1 1 0 01-1.414-1.414l2-2zM13 9a1 1 0 100 2h3a1 1 0 100-2h-3z" />
+          </svg>
+        </div>
+        <input formControlName="loginId" id="login-id" name="loginId" type="text" autocomplete="username" required
+               class="appearance-none block w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-3 pl-10 pr-3 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+               placeholder="Employee ID">
+      </div>
+
+      <!-- Password Input -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 2a3 3 0 00-3 3v1H6a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V8a2 2 0 00-2-2h-1V5a3 3 0 00-3-3zm-1 6a1 1 0 10-2 0v2a1 1 0 102 0V8zm4 0a1 1 0 10-2 0v2a1 1 0 102 0V8z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <input formControlName="password" id="password" name="password" type="password" autocomplete="current-password" required
+               class="appearance-none block w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md py-3 pl-10 pr-3 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm"
+               placeholder="Password">
+      </div>
+
+      <!-- Remember Me & Forgot Password -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input formControlName="rememberMe" id="remember-me" name="remember-me" type="checkbox"
+                 class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+          <label for="remember-me" class="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+            Remember me
+          </label>
+        </div>
+
+        <div class="text-sm">
+          <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+            Forgot Password?
+          </a>
+        </div>
+      </div>
+
+      <!-- Sign In Button -->
+      <div>
+        <button type="submit" [disabled]="loginForm.invalid"
+                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:bg-indigo-400 disabled:cursor-not-allowed">
+          Sign In
+        </button>
+      </div>
+    </form>
+    
+    @if (errorMessage()) {
+      <p class="text-sm text-red-500 text-center mt-4 animate-fadeIn">{{ errorMessage() }}</p>
+    }
+
+    <!-- Footer -->
+    <div class="text-center text-sm text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <p>&copy; 2025 Hyva India. All Rights Reserved.</p>
+    </div>
+
+  </div>
+</div>

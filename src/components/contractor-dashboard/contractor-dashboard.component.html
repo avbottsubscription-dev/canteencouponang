@@ -1,0 +1,234 @@
+<div class="container mx-auto">
+  <!-- 🔔 Big Highlight Banner for Success / Error -->
+  @if (statusMessage(); as msg) {
+    <div
+      class="coupon-alert-banner mb-6"
+      [ngClass]="{
+        'alert-redeemed': msg.type === 'success',
+        'alert-not-available': msg.type === 'error'
+      }"
+    >
+      <div class="msg">
+        {{ msg.text }}
+      </div>
+    </div>
+  }
+
+  @if (currentContractor(); as contractor) {
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+      Welcome, {{ contractor.name }}
+    </h1>
+    <p class="text-md text-gray-500 dark:text-gray-400 mb-6">
+      Managing employees for: {{ contractor.businessName }}
+    </p>
+  }
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Your Employees
+      </h3>
+      <p class="text-4xl font-bold text-indigo-600 dark:text-indigo-400">
+        {{ contractorEmployees().length }}
+      </p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Available Breakfast Coupons
+      </h3>
+      <p class="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
+        {{ availableCoupons()['Breakfast'] }}
+      </p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Available Lunch/Dinner
+      </h3>
+      <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">
+        {{ availableCoupons()['Lunch/Dinner'] }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Employee List -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+        Your Employee List
+      </h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Employee Name
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Employee ID
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Coupons (Issued / Redeemed)
+            </th>
+            <th scope="col" class="relative px-6 py-3">
+              <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+        >
+          @for (employee of contractorEmployees(); track employee.id) {
+          <tr>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
+            >
+              {{ employee.name }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+            >
+              {{ employee.employeeId }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                [class]="
+                  employee.status === 'active'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                "
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
+              >
+                {{ employee.status }}
+              </span>
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+            >
+              @let stats = employeeCouponStats().get(employee.id); {{
+              stats?.issued || 0 }} / {{ stats?.redeemed || 0 }}
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+            >
+              <button
+                (click)="openAssignModal(employee)"
+                class="text-white bg-indigo-600 hover:bg-indigo-700 font-bold py-2 px-4 rounded-md text-xs"
+              >
+                Assign Coupons
+              </button>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td
+              colspan="5"
+              class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400"
+            >
+              You have no employees assigned to you yet.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Assign Coupons Modal -->
+  @if (isAssignModalOpen() && selectedEmployeeForAssignment(); as employee) {
+  <div
+    class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn"
+  >
+    <div
+      class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md m-4"
+    >
+      <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+        Assign Coupons to {{ employee.name }}
+      </h3>
+      <form
+        [formGroup]="assignCouponsForm"
+        (ngSubmit)="handleAssignCoupons()"
+        class="space-y-6"
+      >
+        <div>
+          <label
+            for="breakfastQty"
+            class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
+          >
+            Breakfast Coupons (Available:
+            {{ availableCoupons()['Breakfast'] }})
+          </label>
+          <input
+            formControlName="breakfastQty"
+            id="breakfastQty"
+            type="number"
+            min="0"
+            [max]="availableCoupons()['Breakfast']"
+            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
+          />
+        </div>
+
+        <div>
+          <label
+            for="lunchDinnerQty"
+            class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
+          >
+            Lunch/Dinner Coupons (Available:
+            {{ availableCoupons()['Lunch/Dinner'] }})
+          </label>
+          <input
+            formControlName="lunchDinnerQty"
+            id="lunchDinnerQty"
+            type="number"
+            min="0"
+            [max]="availableCoupons()['Lunch/Dinner']"
+            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700"
+          />
+        </div>
+
+        @if (assignCouponsForm.hasError('noCouponsSelected') &&
+        assignCouponsForm.touched) {
+        <div
+          class="text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/50 rounded-lg border border-red-200 dark:border-red-700"
+        >
+          Please enter a quantity for at least one coupon type.
+        </div>
+        }
+
+        <div class="flex justify-end space-x-4 pt-4">
+          <button
+            type="button"
+            (click)="closeModals()"
+            class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="assignCouponsForm.invalid"
+            class="px-6 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400"
+          >
+            Assign
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>

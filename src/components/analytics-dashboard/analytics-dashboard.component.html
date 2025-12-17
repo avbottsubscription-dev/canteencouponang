@@ -1,0 +1,50 @@
+<div class="container mx-auto">
+  <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Analytics Dashboard</h1>
+    <!-- Date Range Filters -->
+    <div class="flex items-center bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
+      <button (click)="setFilter('7')" 
+              [class]="activeFilter() === '7' ? 'bg-white dark:bg-gray-800 shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400'"
+              class="px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200">
+        Last 7 Days
+      </button>
+      <button (click)="setFilter('30')" 
+              [class]="activeFilter() === '30' ? 'bg-white dark:bg-gray-800 shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400'"
+              class="px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200">
+        Last 30 Days
+      </button>
+      <button (click)="setFilter('90')" 
+              [class]="activeFilter() === '90' ? 'bg-white dark:bg-gray-800 shadow text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400'"
+              class="px-4 py-2 text-sm font-semibold rounded-md transition-colors duration-200">
+        Last 90 Days
+      </button>
+    </div>
+  </div>
+
+  <!-- Redemption Trend Chart -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Coupon Redemption Trends</h2>
+    <div class="h-80">
+      <canvas id="redemptionTrendChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Other Charts Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Departmental Usage Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Redemptions by Department</h2>
+      <div class="h-80">
+        <canvas id="departmentUsageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Meal Type Popularity Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Meal Type Popularity</h2>
+      <div class="h-80">
+        <canvas id="mealTypeChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>

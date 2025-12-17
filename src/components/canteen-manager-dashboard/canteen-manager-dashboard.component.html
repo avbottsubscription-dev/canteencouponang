@@ -1,0 +1,376 @@
+<div class="container mx-auto">
+  <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+      Canteen Manager Dashboard
+    </h1>
+    <div class="flex items-center gap-2">
+      <a
+        routerLink="/canteen-manager/menu"
+        class="inline-flex items-center gap-2 justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+          />
+        </svg>
+        <span>Manage Menu</span>
+      </a>
+      <a
+        routerLink="/canteen-manager/redeem"
+        class="inline-flex items-center gap-2 justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v1m6.364 1.636l-.707.707M20 12h-1M17.636 17.636l-.707-.707M12 20v-1M6.364 17.636l.707-.707M4 12h1M6.364 6.364l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+          />
+        </svg>
+        <span>Redeem Coupon</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 🔔 LIVE ALERT BANNER – highlight + icon -->
+  <div
+    *ngIf="alertVisible()"
+    class="coupon-alert-banner"
+    [ngClass]="{
+      'alert-redeemed': alertType() === 'redeemed',
+      'alert-not-available': alertType() === 'not_available',
+      'alert-already-redeemed': alertType() === 'already_redeemed'
+    }"
+  >
+    <div class="flex items-start gap-3 w-full">
+      <!-- Icon -->
+      <div class="flex-shrink-0">
+        <svg
+          *ngIf="alertType() === 'redeemed'"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+
+        <svg
+          *ngIf="alertType() === 'not_available'"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 5a7 7 0 00-7 7 7 7 0 005.293 6.708M17 17.944A7 7 0 0019 12a7 7 0 00-7-7"
+          />
+        </svg>
+
+        <svg
+          *ngIf="alertType() === 'already_redeemed'"
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9M4 20v-5h.581m.001 0a8.003 8.003 0 0015.356-2"
+          />
+        </svg>
+      </div>
+
+      <!-- Text area -->
+      <div class="flex-1 text-left">
+        <!-- Top label -->
+        <div
+          style="
+            font-size: 0.8rem;
+            letter-spacing: 0.16em;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+          "
+        >
+          @if (alertType() === 'redeemed') {
+            Last Redemption
+          } @else if (alertType() === 'not_available') {
+            Coupon Not Available
+          } @else if (alertType() === 'already_redeemed') {
+            Already Redeemed
+          }
+        </div>
+
+        <!-- Employee name big -->
+        <div
+          *ngIf="alertEmployeeName()"
+          style="
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+          "
+        >
+          {{ alertEmployeeName() }}
+        </div>
+
+        <!-- Main message -->
+        <div class="msg">
+          {{ alertMessage() }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Today's Breakfast Redeemed
+      </h3>
+      <p class="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
+        {{ todayRedeemedBreakfast() }}
+      </p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Today's Lunch/Dinner Redeemed
+      </h3>
+      <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">
+        {{ todayRedeemedLunchDinner() }}
+      </p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Monthly Breakfast Redeemed
+      </h3>
+      <p class="text-4xl font-bold text-yellow-600 dark:text-yellow-400">
+        {{ monthlyRedeemedBreakfast() }}
+      </p>
+    </div>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400">
+        Monthly Lunch/Dinner Redeemed
+      </h3>
+      <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">
+        {{ monthlyRedeemedLunchDinner() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Menu + Report + Live History -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Today's Menu -->
+    <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+        Today's Menu
+      </h2>
+      @if (todaysMenu(); as menu) {
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-semibold text-lg text-yellow-700 dark:text-yellow-400">
+              Breakfast
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+              {{ menu.breakfastMenu }}
+            </p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg text-blue-700 dark:text-blue-400">
+              Lunch / Dinner
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+              {{ menu.lunchDinnerMenu }}
+            </p>
+          </div>
+        </div>
+      } @else {
+        <div class="text-center py-8">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              vector-effect="non-scaling-stroke"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+            Menu Not Set
+          </h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            The menu for today has not been published yet.
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- Daily Report Section -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">
+          Daily Redemption Report
+        </h2>
+        <div class="flex items-center gap-3">
+          <label
+            for="report-date"
+            class="font-semibold text-lg text-gray-700 dark:text-gray-300 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span>Report Date:</span>
+          </label>
+          <input
+            type="date"
+            id="report-date"
+            [value]="selectedDate()"
+            (input)="onDateChange($event)"
+            class="px-4 py-2 text-lg border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
+          />
+        </div>
+      </div>
+
+      @if (redeemedCouponsForDay().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (type of couponTypes; track type) {
+            @if (groupedCoupons()[type]; as coupons) {
+              <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <h3 class="font-bold text-lg text-indigo-700 dark:text-indigo-400 mb-2">
+                  {{ type }}
+                </h3>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+                  {{ coupons.length }}
+                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Redeemed
+                  </span>
+                </p>
+                <ul class="space-y-2 max-h-48 overflow-y-auto">
+                  @for (coupon of coupons; track coupon.couponId) {
+                    <li class="text-sm text-gray-600 dark:text-gray-300 flex justify-between items-center">
+                      <span>
+                        <span
+                          class="font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded-md text-xs"
+                        >
+                          {{ coupon.couponId }}
+                        </span>
+                        -
+                        by {{ employeesMap().get(coupon.employeeId) || 'Unknown' }}
+                      </span>
+                      <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        {{ formatTime(coupon.redeemDate) }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          }
+        </div>
+      } @else {
+        <div class="text-center py-12">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              vector-effect="non-scaling-stroke"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+            />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+            No Coupons Redeemed
+          </h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            No coupons were redeemed on the selected date.
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- 🔴 Live Punch History -->
+    <div class="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+        Live Punch History
+      </h2>
+
+      @if (punchHistory().length > 0) {
+        <ul class="space-y-2 max-h-80 overflow-y-auto pr-1">
+          @for (ev of punchHistory(); track ev.id) {
+            <li
+              class="rounded-md px-3 py-2 text-sm border flex flex-col gap-1"
+              [ngClass]="{
+                'bg-emerald-50 border-emerald-400': ev.resultType === 'redeemed',
+                'bg-red-50 border-red-400': ev.resultType === 'not_available',
+                'bg-orange-50 border-orange-400': ev.resultType === 'already_redeemed',
+                'bg-gray-50 border-gray-300': ev.resultType === 'error'
+              }"
+            >
+              <div class="flex justify-between items-center">
+                <span class="font-semibold">
+                  {{ employeesMap().get(ev.employeeId) || ('Emp #' + ev.employeeId) }}
+                </span>
+                <span class="text-xs text-gray-500">
+                  {{ formatTime(ev.createdAt) }}
+                </span>
+              </div>
+              <div class="text-xs text-gray-700 dark:text-gray-200">
+                {{ ev.message }}
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          No punch activity yet for today.
+        </p>
+      }
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<div class="container mx-auto max-w-4xl">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Menu Management</h1>
+    <a routerLink="/canteen-manager" class="inline-flex items-center gap-2 justify-center rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+      </svg>
+      Back to Dashboard
+    </a>
+  </div>
+
+   @if (statusMessage(); as msg) {
+    <div class="mb-4 p-4 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center space-x-3">
+        <svg class="w-5 h-5 text-green-600 dark:text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <p class="font-semibold text-green-800 dark:text-green-200">{{ msg.text }}</p>
+    </div>
+  }
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+    <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4 border-b border-gray-200 dark:border-gray-700 pb-6">
+      <p class="text-lg text-gray-600 dark:text-gray-300">Select a date to view or edit the menu for that day.</p>
+      <div class="flex items-center gap-3">
+        <label for="menu-date" class="font-semibold text-lg text-gray-700 dark:text-gray-300">Menu Date:</label>
+        <input type="date" id="menu-date" [value]="selectedDate()" (input)="onDateChange($event)" class="px-4 py-2 text-lg border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white">
+      </div>
+    </div>
+
+    <form [formGroup]="menuForm" (ngSubmit)="saveMenu()" class="space-y-8">
+      <div>
+        <label for="breakfastMenu" class="block text-xl font-semibold text-yellow-700 dark:text-yellow-400 mb-2">Breakfast Menu</label>
+        <textarea id="breakfastMenu" formControlName="breakfastMenu" rows="5" placeholder="Enter each menu item on a new line..." 
+                  class="w-full p-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-yellow-500"></textarea>
+      </div>
+
+      <div>
+        <label for="lunchDinnerMenu" class="block text-xl font-semibold text-blue-700 dark:text-blue-400 mb-2">Lunch / Dinner Menu</label>
+        <textarea id="lunchDinnerMenu" formControlName="lunchDinnerMenu" rows="8" placeholder="Enter each menu item on a new line..."
+                  class="w-full p-3 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"></textarea>
+      </div>
+
+      <div class="flex justify-end pt-4">
+        <button type="submit" class="inline-flex items-center gap-2 justify-center rounded-lg bg-indigo-600 px-8 py-3 text-lg font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M7.5 2.5a.5.5 0 00-1 0v1a.5.5 0 001 0v-1zM6 3.5a.5.5 0 01.5-.5h1a.5.5 0 010 1h-1a.5.5 0 01-.5-.5zM8 3.5a.5.5 0 01.5-.5h1a.5.5 0 010 1h-1a.5.5 0 01-.5-.5zM9.5 2.5a.5.5 0 00-1 0v1a.5.5 0 001 0v-1zM11 3.5a.5.5 0 01.5-.5h1a.5.5 0 010 1h-1a.5.5 0 01-.5-.5zm1.5-.5a.5.5 0 00-1 0v1a.5.5 0 001 0v-1zM4 5.5a1 1 0 011-1h10a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9zM5 15h10V6H5v9z" />
+            <path d="M5.5 7h9a.5.5 0 010 1h-9a.5.5 0 010-1zM5.5 9h9a.5.5 0 010 1h-9a.5.5 0 010-1zM5.5 11h9a.5.5 0 010 1h-9a.5.5 0 010-1zM5.5 13h9a.5.5 0 010 1h-9a.5.5 0 010-1z" />
+          </svg>
+          Save Menu
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

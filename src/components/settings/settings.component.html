@@ -1,0 +1,103 @@
+<div class="container mx-auto max-w-3xl">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Email Setup</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Configure SMTP settings for sending email notifications. (Simulation Only)</p>
+    <div class="border-b border-gray-200 dark:border-gray-700 my-6"></div>
+    
+    <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="space-y-6">
+      
+      <!-- Enable/Disable Toggle -->
+      <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+        <div>
+          <label for="isEnabled" class="block text-sm font-medium text-gray-900 dark:text-gray-200">Enable Email Notifications</label>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Master switch for all simulated email notifications.</p>
+        </div>
+        <label for="isEnabled" class="flex items-center cursor-pointer">
+          <div class="relative">
+            <input type="checkbox" id="isEnabled" formControlName="isEnabled" class="sr-only">
+            <div class="block bg-gray-200 dark:bg-gray-600 w-14 h-8 rounded-full"></div>
+            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform"
+                 [class.translate-x-6]="settingsForm.get('isEnabled')?.value"
+                 [class.bg-indigo-600]="settingsForm.get('isEnabled')?.value"></div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Sender Settings -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="fromAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">"From" Address</label>
+          <input id="fromAddress" formControlName="fromAddress" type="email" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+        </div>
+        <div>
+          <label for="replyToAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">"Reply-To" Address</label>
+          <input id="replyToAddress" formControlName="replyToAddress" type="email" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+        </div>
+      </div>
+      
+      <!-- SMTP Server Settings -->
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">SMTP Server Configuration</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <div>
+            <label for="smtpHost" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SMTP Host</label>
+            <input id="smtpHost" formControlName="smtpHost" type="text" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          </div>
+          <div>
+            <label for="smtpPort" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SMTP Port</label>
+            <input id="smtpPort" formControlName="smtpPort" type="number" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          </div>
+          <div>
+            <label for="smtpUser" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SMTP Username</label>
+            <input id="smtpUser" formControlName="smtpUser" type="text" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          </div>
+          <div>
+            <label for="smtpPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">SMTP Password</label>
+            <input id="smtpPassword" formControlName="smtpPassword" type="password" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+          </div>
+          <div>
+            <label for="smtpEncryption" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Encryption</label>
+            <select id="smtpEncryption" formControlName="smtpEncryption" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+              <option value="none">None</option>
+              <option value="ssl_tls">SSL/TLS</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end space-x-4 pt-4">
+        <button type="button" (click)="cancel()" class="px-4 py-2 rounded font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+        <button type="submit" [disabled]="settingsForm.invalid" class="px-4 py-2 rounded font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400">Save Changes</button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Test Email Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 mt-8">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Send a Test Email</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Verify your settings by sending a simulated test email.</p>
+      <form [formGroup]="testEmailForm" (ngSubmit)="handleSendTestEmail()" class="flex items-start space-x-4 mt-4">
+        <div class="flex-grow">
+          <label for="recipient" class="sr-only">Recipient Email</label>
+          <input id="recipient" formControlName="recipient" type="email" placeholder="recipient@example.com" class="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600">
+        </div>
+        <button type="submit" [disabled]="testEmailForm.invalid" class="px-4 py-2 rounded font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400">Send Test</button>
+      </form>
+      @if (testEmailStatus(); as status) {
+        <div class="mt-4 p-3 rounded-md text-sm" [class.bg-green-100]="status.type === 'success'" [class.dark:bg-green-900/50]="status.type === 'success'" [class.text-green-800]="status.type === 'success'" [class.dark:text-green-200]="status.type === 'success'">
+          {{ status.message }}
+        </div>
+      }
+  </div>
+</div>
+<style>
+  /* Simple toggle switch styling */
+  input:checked ~ .dot {
+    transform: translateX(1.5rem);
+    background-color: #4f46e5; /* indigo-600 */
+  }
+  input:checked + div {
+      background-color: #a5b4fc; /* indigo-300 */
+  }
+</style>

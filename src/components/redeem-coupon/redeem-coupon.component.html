@@ -1,0 +1,184 @@
+<div class="container mx-auto max-w-2xl">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+      Redeem Coupon
+    </h1>
+    <a
+      routerLink="/canteen-manager"
+      class="inline-flex items-center gap-2 justify-center rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      Back to Dashboard
+    </a>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 space-y-8">
+    <!-- 🔔 मोठा Alert Banner + Colors + Sound (logic TS मध्ये आहे) -->
+    <div
+      *ngIf="alertVisible()"
+      class="coupon-alert-banner mb-4"
+      [ngClass]="{
+        'alert-redeemed': alertType() === 'redeemed',
+        'alert-not-available': alertType() === 'not_available',
+        'alert-already-redeemed': alertType() === 'already_redeemed'
+      }"
+    >
+      <div class="msg">
+        {{ alertMessage() }}
+      </div>
+    </div>
+
+    <!-- QR Scanner & Manual Section -->
+    <div>
+      <h2
+        class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4 text-center"
+      >
+        Scan QR Code or Enter Manually
+      </h2>
+
+      <div class="max-w-sm mx-auto">
+        @if (isScannerVisible()) {
+          <div class="animate-fadeIn">
+            <div
+              id="qr-reader-redeem"
+              class="w-full rounded-lg overflow-hidden border-4 border-gray-300 dark:border-gray-600"
+            ></div>
+
+            @if (scannerErrorMessage()) {
+              <p
+                class="text-center text-sm text-red-600 dark:text-red-400 mt-2"
+              >
+                {{ scannerErrorMessage() }}
+              </p>
+            }
+
+            <div class="flex justify-center mt-4">
+              <button
+                (click)="hideScanner()"
+                type="button"
+                class="px-6 py-2 rounded text-white bg-red-600 hover:bg-red-700"
+              >
+                Cancel Scan
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="flex justify-center">
+            <button
+              (click)="showScanner()"
+              type="button"
+              class="w-full inline-flex items-center gap-3 justify-center rounded-lg bg-indigo-600 px-8 py-4 text-lg font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 4v1m6.364 1.636l-.707.707M20 12h-1M17.636 17.636l-.707-.707M12 20v-1M6.364 17.636l.707-.707M4 12h1M6.364 6.364l.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
+              <span>Scan QR Code</span>
+            </button>
+          </div>
+        }
+      </div>
+
+      <form
+        [formGroup]="redeemCouponForm"
+        (ngSubmit)="handleRedeemCoupon()"
+        class="flex items-start space-x-2 md:space-x-4 max-w-sm mx-auto mt-6"
+      >
+        <div class="flex-grow">
+          <label for="redeem-code-page" class="sr-only">4-Digit Code</label>
+          <input
+            formControlName="code"
+            id="redeem-code-page"
+            type="text"
+            maxlength="4"
+            placeholder="1234"
+            class="w-full px-4 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center text-3xl font-mono tracking-widest"
+          />
+          @if (redeemCouponForm.get('code')?.invalid && redeemCouponForm.get('code')?.touched) {
+            <p class="text-red-500 text-xs mt-1">
+              Please enter a valid 4-digit numeric code.
+            </p>
+          }
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="redeemCouponForm.invalid"
+          class="px-6 py-2 h-full text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-not-allowed font-semibold text-lg"
+        >
+          Redeem
+        </button>
+      </form>
+    </div>
+
+    @if (redeemStatusMessage(); as msg) {
+      <div class="mt-4">
+        @if (msg.type === 'success') {
+          <div
+            class="p-4 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center space-x-3"
+          >
+            <div
+              class="relative flex-shrink-0 w-6 h-6 flex items-center justify-center"
+            >
+              <div
+                class="absolute w-full h-full bg-green-400 rounded-full animate-ping opacity-75"
+              ></div>
+              <div class="relative w-4 h-4 bg-green-500 rounded-full"></div>
+            </div>
+            <p class="font-semibold text-green-800 dark:text-green-200">
+              {{ msg.text }}
+            </p>
+          </div>
+        }
+        @if (msg.type === 'error') {
+          <div
+            class="p-4 rounded-lg bg-red-50 dark:bg-red-900/50 border border-red-300 dark:border-red-700 flex items-center space-x-3"
+          >
+            <div
+              class="flex-shrink-0 w-6 h-6 flex items-center justify-center"
+            >
+              <svg
+                class="w-6 h-6 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <p class="font-semibold text-red-800 dark:text-red-200">
+              {{ msg.text }}
+            </p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

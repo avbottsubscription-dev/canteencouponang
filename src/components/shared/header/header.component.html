@@ -1,0 +1,139 @@
+<header class="bg-white dark:bg-gray-800 shadow-md">
+  <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- LEFT SECTION -->
+      <div class="flex items-center space-x-3">
+
+        <!-- 👉 Mobile Hamburger (sidebar toggle) -->
+        @if (currentUser()) {
+          <button
+            class="md:hidden p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            (click)="menuToggle.emit()">
+            <span class="sr-only">Open menu</span>
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        }
+
+        <!-- App Title -->
+        <span class="text-xl font-bold text-gray-800 dark:text-white">
+          @if (currentUser(); as user) {
+            @if ('role' in user) {
+              {{ user.role | titlecase }} Portal
+            } @else {
+              Contractor Portal
+            }
+          }
+        </span>
+      </div>
+
+      <!-- RIGHT SECTION -->
+      <div class="flex items-center space-x-2">
+
+        <!-- Notification Bell -->
+        <div class="relative notification-panel-container">
+          <button
+            (click)="toggleNotificationPanel()"
+            class="relative p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+            <span class="sr-only">View notifications</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0
+                   0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2
+                   2 0 10-4 0v.341C7.67 6.165 6 8.388
+                   6 11v3.159c0 .538-.214 1.055-.595
+                   1.436L4 17h5m6 0v1a3 3 0 11-6
+                   0v-1m6 0H9" />
+            </svg>
+
+            @if (unreadNotificationCount() > 0) {
+              <span
+                class="absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500
+                       ring-2 ring-white dark:ring-gray-800">
+              </span>
+            }
+          </button>
+
+          <!-- Notification Panel -->
+          @if (isNotificationPanelOpen()) {
+            <div
+              class="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg py-1
+                     bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5
+                     focus:outline-none z-20 animate-slideDown">
+              <div class="flex justify-between items-center px-4 py-2 border-b dark:border-gray-700">
+                <h3 class="font-semibold text-gray-700 dark:text-gray-200">Notifications</h3>
+                @if (unreadNotificationCount() > 0) {
+                  <button
+                    (click)="markAllAsRead()"
+                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+                    Mark all as read
+                  </button>
+                }
+              </div>
+              <div class="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto">
+                @for (notification of userNotifications(); track notification.id) {
+                  <a
+                    (click)="markAsRead(notification)"
+                    class="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    [class.bg-blue-50]="!notification.isRead"
+                    [class.dark:bg-blue-900/20]="!notification.isRead">
+                    <p class="text-sm text-gray-800 dark:text-gray-200">
+                      {{ notification.message }}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {{ relativeTime(notification.createdAt) }}
+                    </p>
+                  </a>
+                } @empty {
+                  <p class="text-center text-sm text-gray-500 dark:text-gray-400 py-6">
+                    You have no notifications.
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- User Menu -->
+        <div class="relative user-menu-container">
+          <button
+            (click)="toggleUserMenu()"
+            class="flex text-sm rounded-full bg-gray-800 focus:outline-none
+                   focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+            <span class="sr-only">Open user menu</span>
+            <img class="h-8 w-8 rounded-full" src="https://picsum.photos/id/237/200/200" alt="User avatar">
+          </button>
+
+          @if (isUserMenuOpen()) {
+            <div
+              class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1
+                     bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5
+                     focus:outline-none z-20 animate-slideDown">
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm text-gray-900 dark:text-white truncate">
+                  {{ currentUser()?.name }}
+                </p>
+              </div>
+              <a
+                routerLink="/change-password"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700">
+                Change Password
+              </a>
+              <a
+                (click)="logout.emit()"
+                class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                Sign out
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

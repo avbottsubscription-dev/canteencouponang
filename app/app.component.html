@@ -1,0 +1,39 @@
+<div class="min-h-screen font-sans text-gray-800 dark:text-gray-200">
+
+  @if (currentUser()) {
+
+    <div class="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+
+      <!-- ADMIN SIDEBAR - सर्व स्क्रीनवर (mobile + desktop) -->
+      @if (isAdmin()) {
+        <app-sidebar (logout)="logout()"></app-sidebar>
+      }
+
+      <!-- MAIN APP AREA -->
+      <div class="flex-1 flex flex-col">
+
+        <!-- HEADER -->
+        <app-header (logout)="logout()"></app-header>
+
+        <!-- PAGE CONTENT -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+          <div class="w-full max-w-[1200px] mx-auto">
+            <router-outlet></router-outlet>
+          </div>
+        </main>
+
+      </div>
+    </div>
+
+  } @else {
+
+    <!-- LOGIN / PUBLIC PAGES -->
+    <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div class="w-full max-w-[480px]">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+
+  }
+
+</div>

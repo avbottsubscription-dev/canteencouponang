@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">canteen-coupon</string>
+    <string name="title_activity_main">canteen-coupon</string>
+    <string name="package_name">com.hyva.canteen</string>
+    <string name="custom_url_scheme">com.hyva.canteen</string>
+</resources>

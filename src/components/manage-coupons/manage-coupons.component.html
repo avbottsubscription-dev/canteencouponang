@@ -1,0 +1,538 @@
+<div class="container mx-auto">
+  @if (statusMessage(); as msg) {
+       @if(msg.type === 'success') {
+         <div class="mb-4 p-4 rounded-lg bg-green-50 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center space-x-3">
+           <div class="relative flex-shrink-0 w-6 h-6 flex items-center justify-center">
+             <div class="absolute w-full h-full bg-green-400 rounded-full animate-ping opacity-75"></div>
+             <div class="relative w-4 h-4 bg-green-500 rounded-full"></div>
+           </div>
+           <p class="font-semibold text-green-800 dark:text-green-200">{{ msg.text }}</p>
+         </div>
+       }
+       @if(msg.type === 'error') {
+          <div class="mb-4 p-4 rounded-lg bg-red-50 dark:bg-red-900/50 border border-red-300 dark:border-red-700 flex items-center space-x-3">
+             <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                 <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+             </div>
+             <p class="font-semibold text-red-800 dark:text-red-200">{{ msg.text }}</p>
+          </div>
+       }
+     }
+ 
+   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+     <div class="p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+       <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Manage Coupons</h2>
+       <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+         @if (activeTab() === 'employees') {
+           <div class="relative inline-block text-left export-menu-container">
+             <div>
+               <button (click)="toggleExportMenu()" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-700 focus:ring-indigo-500" aria-expanded="true" aria-haspopup="true">
+                 Export Reports
+                 <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                 </svg>
+               </button>
+             </div>
+             @if (isExportMenuOpen()) {
+               <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu" aria-orientation="vertical">
+                 <div class="py-1" role="none">
+                   <a (click)="exportCouponsCsv(); isExportMenuOpen.set(false)" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" role="menuitem">Export Coupon Data (CSV)</a>
+                   <a (click)="exportCouponsPdf(); isExportMenuOpen.set(false)" class="text-gray-700 dark:text-gray-200 block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" role="menuitem">Export Coupon Data (PDF)</a>
+                 </div>
+               </div>
+             }
+           </div>
+         }
+       </div>
+     </div>
+ 
+     <!-- TABS -->
+     <div class="px-6 border-b border-gray-200 dark:border-gray-700">
+       <nav class="-mb-px flex space-x-6">
+         <button (click)="activeTab.set('employees')" [class]="activeTab() === 'employees' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+           Permanent Employees
+         </button>
+         <button (click)="activeTab.set('contractors')" [class]="activeTab() === 'contractors' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+           Contractors
+         </button>
+         <button (click)="activeTab.set('guest')" [class]="activeTab() === 'guest' ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600'" class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+           Guest Pass Requests
+         </button>
+       </nav>
+     </div>
+ 
+     <!-- EMPLOYEES TAB CONTENT -->
+     @if (activeTab() === 'employees') {
+       <div>
+         <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+           <input (input)="updateSearch($event)" type="text" placeholder="Search by name, email, ID, or department..." class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+         </div>
+         <div class="overflow-x-auto">
+           <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+             <thead class="bg-gray-50 dark:bg-gray-700">
+               <tr>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"><button (click)="setSort('name')" class="group inline-flex items-center">Name</button></th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Coupons (Issued/Redeemed)</th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Issued On</th>
+                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Redeemed On</th>
+                 <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+               </tr>
+             </thead>
+             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+               @for (employee of filteredAndSortedEmployees(); track employee.id) {
+                 <tr>
+                   <td class="px-6 py-4 whitespace-nowrap">
+                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ employee.name }}</div>
+                     <div class="text-sm text-gray-500 dark:text-gray-400">ID: {{ employee.employeeId }}</div>
+                   </td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm">
+                     <button (click)="openManageEmployeeCouponsModal(employee)" class="w-full text-left p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700/50 cursor-pointer">
+                       @let stats = employeeCouponStats().get(employee.id);
+                       @if (stats && stats.totalIssued > 0) {
+                           <div class="flex flex-wrap gap-1 items-center">
+                               @for (type of ['Breakfast', 'Lunch/Dinner']; track type) {
+                                   @if(stats.breakdown[type]; as typeStats) {
+                                       <span [class]="getCouponTypeClass(type)" class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full capitalize">
+                                           {{ type.substring(0,1) }}: {{ typeStats.issued }}/{{ typeStats.redeemed }}
+                                       </span>
+                                   }
+                               }
+                           </div>
+                           <div class="text-xs font-bold mt-2 text-gray-600 dark:text-gray-300">
+                               Total: {{ stats.totalIssued }} / {{ stats.totalRedeemed }}
+                           </div>
+                       } @else {
+                           <span class="text-gray-500 dark:text-gray-400">0 / 0</span>
+                       }
+                     </button>
+                   </td>
+                   @let dateStats = employeeDateStats().get(employee.id) || { lastIssued: null, lastRedeemed: null };
+                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(dateStats.lastIssued) }}</td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ formatDateTime(dateStats.lastRedeemed) }}</td>
+                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                       <button (click)="openGenerateCouponsModal(employee)" class="text-white bg-indigo-600 hover:bg-indigo-700 font-bold py-2 px-4 rounded-md text-xs">Generate Coupons</button>
+                   </td>
+                 </tr>
+               }
+               @empty {
+                 <tr>
+                   <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                     No permanent employees found.
+                   </td>
+                 </tr>
+               }
+             </tbody>
+           </table>
+         </div>
+       </div>
+     }
+ 
+     <!-- CONTRACTORS TAB CONTENT -->
+     @if (activeTab() === 'contractors') {
+       <div class="overflow-x-auto">
+         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+           <thead class="bg-gray-50 dark:bg-gray-700">
+             <tr>
+               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contractor</th>
+               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Available Coupons (Pool)</th>
+               <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
+             </tr>
+           </thead>
+           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+             @for(contractor of contractors(); track contractor.id) {
+               <tr>
+                 <td class="px-6 py-4 whitespace-nowrap">
+                   <div class="text-sm font-medium text-gray-900 dark:text-white">{{ contractor.businessName }}</div>
+                   <div class="text-sm text-gray-500 dark:text-gray-400">{{ contractor.name }}</div>
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-sm">
+                   @let stats = contractorCouponStats().get(contractor.id);
+                   @if(stats) {
+                     <div class="flex flex-wrap gap-1 items-center">
+                       @for (type of ['Breakfast', 'Lunch/Dinner']; track type) {
+                         @if(stats.breakdown[type]) {
+                           <span [class]="getCouponTypeClass(type)" class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full capitalize">
+                             {{ type }}: {{ stats.breakdown[type] }}
+                           </span>
+                         }
+                       }
+                       @if(!stats.breakdown['Breakfast'] && !stats.breakdown['Lunch/Dinner']) {
+                         <span class="text-gray-500 dark:text-gray-400">Pool is empty</span>
+                       }
+                     </div>
+                   }
+                 </td>
+                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                   <button (click)="openGenerateContractorCouponsModal(contractor)" class="text-white bg-indigo-600 hover:bg-indigo-700 font-bold py-2 px-4 rounded-md text-xs">Generate Coupons</button>
+                 </td>
+               </tr>
+             }
+             @empty {
+                <tr>
+                 <td colspan="3" class="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                   No contractors found. Add one from the <a routerLink="/admin/contractors" class="text-indigo-600 hover:underline">Contractors</a> page.
+                 </td>
+               </tr>
+             }
+           </tbody>
+         </table>
+       </div>
+     }
+ 
+     <!-- GUEST PASS REQUESTS TAB CONTENT -->
+     @if (activeTab() === 'guest') {
+       <div>
+         <div class="p-6 border-t border-gray-200 dark:border-gray-700 space-y-2">
+           <p class="text-sm text-gray-600 dark:text-gray-400">
+             Review guest pass requests submitted by employees. Pending requests can be approved or rejected.
+           </p>
+           <input
+             (input)="updateGuestSearch($event)"
+             type="text"
+             placeholder="Search by employee, guest name, company, or coupon type..."
+             class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+           >
+         </div>
+ 
+         <div class="px-6 pb-6 space-y-8">
+           <!-- Pending Requests -->
+           <div class="bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700">
+             <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+               <div>
+                 <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                   Pending Guest Pass Requests
+                 </h3>
+                 <p class="text-xs text-gray-500 dark:text-gray-400">
+                   Requests waiting for admin approval.
+                 </p>
+               </div>
+             </div>
+ 
+             <div class="overflow-x-auto">
+               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                 <thead class="bg-gray-100 dark:bg-gray-800/70">
+                   <tr>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Requested By
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Guest Name
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Guest Company
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Coupon Type
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Requested On
+                     </th>
+                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Actions
+                     </th>
+                   </tr>
+                 </thead>
+                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                   @for (request of pendingGuestRequests(); track request.id) {
+                     <tr>
+                       <td class="px-4 py-3 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                           {{ request.employeeName }}
+                         </div>
+                         <div class="text-xs text-gray-500 dark:text-gray-400">
+                           Employee ID: {{ request.employeeId }}
+                         </div>
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-100">
+                         {{ request.guestName }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">
+                         {{ request.guestCompany }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap">
+                         <span
+                           [class]="getCouponTypeClass(request.couponType)"
+                           class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
+                         >
+                           {{ request.couponType }}
+                         </span>
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                         {{ formatDateTime(request.requestDate) }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-right text-sm space-x-2">
+                         <button
+                           type="button"
+                           (click)="handleApproveGuestRequest(request)"
+                           class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-white bg-green-600 hover:bg-green-700"
+                         >
+                           Approve
+                         </button>
+                         <button
+                           type="button"
+                           (click)="handleRejectGuestRequest(request)"
+                           class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900/70"
+                         >
+                           Reject
+                         </button>
+                       </td>
+                     </tr>
+                   } @empty {
+                     <tr>
+                       <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                         No pending guest pass requests.
+                       </td>
+                     </tr>
+                   }
+                 </tbody>
+               </table>
+             </div>
+           </div>
+ 
+           <!-- Processed Requests -->
+           <div class="bg-gray-50 dark:bg-gray-900/40 rounded-lg border border-gray-200 dark:border-gray-700">
+             <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+               <div>
+                 <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                   Processed Guest Pass Requests
+                 </h3>
+                 <p class="text-xs text-gray-500 dark:text-gray-400">
+                   Requests that have been approved or rejected.
+                 </p>
+               </div>
+             </div>
+ 
+             <div class="overflow-x-auto">
+               <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                 <thead class="bg-gray-100 dark:bg-gray-800/70">
+                   <tr>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Status
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Requested By
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Guest Name
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Guest Company
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Coupon Type
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Requested On
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Processed On
+                     </th>
+                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                       Coupon ID
+                     </th>
+                   </tr>
+                 </thead>
+                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                   @for (request of processedGuestRequests(); track request.id) {
+                     <tr>
+                       <td class="px-4 py-3 whitespace-nowrap">
+                         <span
+                           [class]="request.status === 'approved'
+                             ? 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                             : 'px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'"
+                         >
+                           {{ request.status }}
+                         </span>
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap">
+                         <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                           {{ request.employeeName }}
+                         </div>
+                         <div class="text-xs text-gray-500 dark:text-gray-400">
+                           Employee ID: {{ request.employeeId }}
+                         </div>
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 dark:text-gray-100">
+                         {{ request.guestName }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">
+                         {{ request.guestCompany }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap">
+                         <span
+                           [class]="getCouponTypeClass(request.couponType)"
+                           class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full capitalize"
+                         >
+                           {{ request.couponType }}
+                         </span>
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                         {{ formatDateTime(request.requestDate) }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                         {{ formatDateTime(request.decisionDate) }}
+                       </td>
+                       <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                         {{ request.generatedCouponId || 'N/A' }}
+                       </td>
+                     </tr>
+                   } @empty {
+                     <tr>
+                       <td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                         No processed guest pass requests yet.
+                       </td>
+                     </tr>
+                   }
+                 </tbody>
+               </table>
+             </div>
+           </div>
+         </div>
+       </div>
+     }
+   </div>
+ 
+   <!-- Generate Coupons Modal (Employee) -->
+   @if (isGenerateCouponsModalOpen() && selectedEmployee(); as employee) {
+     <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
+       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md m-4">
+         <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Generate Coupons for {{ employee.name }}</h3>
+         <form [formGroup]="generateCouponsForm" (ngSubmit)="handleGenerateCoupons()" class="space-y-6">
+           <div>
+             <label for="couponType" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Meal Type</label>
+             <select formControlName="couponType" id="couponType" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+               <option [ngValue]="null" disabled>Select Meal (Breakfast / Lunch/Dinner)</option>
+               <option value="Breakfast">Breakfast</option>
+               <option value="Lunch/Dinner">Lunch/Dinner</option>
+             </select>
+           </div>
+           @if (generateCouponError()) {
+             <div class="mt-4 text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/50 rounded-lg border border-red-200 dark:border-red-700">
+               {{ generateCouponError() }}
+             </div>
+           }
+           <div class="flex justify-end space-x-4 pt-4">
+             <button type="button" (click)="closeModals()" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+             <button type="submit" [disabled]="generateCouponsForm.invalid" class="px-6 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400">Generate</button>
+           </div>
+         </form>
+       </div>
+     </div>
+   }
+ 
+   <!-- Generate Coupons Modal (Contractor) -->
+   @if (isGenerateContractorCouponsModalOpen() && selectedContractor(); as contractor) {
+     <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
+       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md m-4">
+         <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Generate Coupons for {{ contractor.businessName }}</h3>
+         <form [formGroup]="generateContractorCouponsForm" (ngSubmit)="handleGenerateContractorCoupons()" class="space-y-6">
+           <div class="grid grid-cols-2 gap-4">
+             <div>
+               <label for="contractorCouponType" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Meal Type</label>
+               <select formControlName="couponType" id="contractorCouponType" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                 <option [ngValue]="null" disabled>Select Meal</option>
+                 <option value="Breakfast">Breakfast</option>
+                 <option value="Lunch/Dinner">Lunch/Dinner</option>
+               </select>
+             </div>
+             <div>
+               <label for="quantity" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Quantity</label>
+               <input formControlName="quantity" id="quantity" type="number" min="1" max="500" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+             </div>
+           </div>
+           @if (generateContractorCouponError()) {
+             <div class="mt-4 text-sm text-red-600 dark:text-red-400 p-3 bg-red-50 dark:bg-red-900/50 rounded-lg border border-red-200 dark:border-red-700">
+               {{ generateContractorCouponError() }}
+             </div>
+           }
+           <div class="flex justify-end space-x-4 pt-4">
+             <button type="button" (click)="closeModals()" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+             <button type="submit" [disabled]="generateContractorCouponsForm.invalid" class="px-6 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400">Generate</button>
+           </div>
+         </form>
+       </div>
+     </div>
+   }
+ 
+   <!-- Manage Employee Coupons Modal -->
+   @if (isManageEmployeeCouponsModalOpen() && selectedEmployeeForCouponMgmt(); as employee) {
+     <div class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 animate-fadeIn">
+       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-2xl m-4 flex flex-col">
+         <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Manage Unredeemed Coupons</h3>
+         <p class="text-gray-600 dark:text-gray-400 mb-6">For: <span class="font-semibold">{{ employee.name }}</span></p>
+         
+         <div class="overflow-y-auto max-h-[60vh] -mr-4 pr-4">
+             @if(employeeUnredeemedCoupons().length > 0) {
+                 <ul class="space-y-3">
+                     @for(coupon of employeeUnredeemedCoupons(); track coupon.couponId) {
+                         <li class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg flex items-center justify-between">
+                             <div>
+                                 <span [class]="getCouponTypeClass(coupon.couponType)" class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full capitalize">
+                                     {{ coupon.couponType }}
+                                 </span>
+                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                     Issued: {{ formatDateTime(coupon.dateIssued) }}
+                                 </p>
+                             </div>
+                             <div class="text-right">
+                                 <p class="font-mono font-bold tracking-wider text-gray-700 dark:text-gray-300">{{ coupon.redemptionCode }}</p>
+                                 <p class="text-xs font-mono text-gray-400">{{ coupon.couponId }}</p>
+                             </div>
+                             <div>
+                                 <button (click)="handleRemoveCoupon(coupon.couponId)" class="ml-4 px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                     Remove
+                                 </button>
+                             </div>
+                         </li>
+                     }
+                 </ul>
+             } @else {
+                 <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                     This employee has no unredeemed coupons.
+                 </div>
+             }
+         </div>
+ 
+         <div class="flex justify-between items-center pt-6 mt-auto border-t border-gray-200 dark:border-gray-700">
+           @if(employeeUnredeemedCoupons().length > 0 && isSuperAdmin()) {
+             <button type="button" (click)="openRemoveLastBatchModal()" class="px-6 py-2 rounded-lg font-semibold text-white bg-red-600 hover:bg-red-700">
+               Remove Last Batch
+             </button>
+           } @else {
+             <div></div> <!-- Spacer -->
+           }
+           <button type="button" (click)="closeModals()" class="px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700">Done</button>
+         </div>
+       </div>
+     </div>
+   }
+ 
+   <!-- Confirm Remove Last Batch Modal -->
+   @if (isRemoveLastBatchModalOpen() && lastBatchInfo(); as batch) {
+     <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn">
+       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md m-4 text-center">
+         <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/50">
+           <svg class="h-6 w-6 text-red-600 dark:text-red-400" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+           </svg>
+         </div>
+         <h3 class="text-xl font-bold text-gray-800 dark:text-white mt-4">Remove Last Coupon Batch?</h3>
+         <div class="text-gray-600 dark:text-gray-400 mt-2 space-y-2">
+           <p>
+             Are you sure you want to remove the most recently generated batch of coupons for this employee?
+           </p>
+           <div class="p-3 bg-gray-100 dark:bg-gray-700 rounded-md text-sm">
+               <p><span class="font-semibold">{{ batch.count }} {{ batch.couponType }}</span> coupons</p>
+               <p>Issued on: <span class="font-mono">{{ formatDateTime(batch.dateIssued) }}</span></p>
+           </div>
+           <p class="font-bold">This action cannot be undone.</p>
+         </div>
+         <div class="flex justify-center space-x-4 mt-8">
+           <button type="button" (click)="isRemoveLastBatchModalOpen.set(false)" class="px-8 py-2 rounded-lg font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500">Cancel</button>
+           <button type="button" (click)="handleRemoveLastBatch()" class="px-8 py-2 rounded-lg font-semibold text-white bg-red-600 hover:bg-red-700">Confirm & Remove</button>
+         </div>
+       </div>
+     </div>
+   }
+ </div>
+ 
