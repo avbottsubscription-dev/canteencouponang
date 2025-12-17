@@ -1,0 +1,7 @@
+{
+  "name": "Canteen Coupon",
+  "description": "An application for managing canteen coupons for both admins and users. Admins can issue coupons and view reports, while users can view and redeem their coupons.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
